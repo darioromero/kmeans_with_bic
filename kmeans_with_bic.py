@@ -44,7 +44,32 @@ class kmeans_clustering:
 # Test class kmeans_with_bic
 from sklearn.datasets import load_sample_images, make_multilabel_classification
 
+# generate some data
 X, y = make_multilabel_classification(n_samples=1000, allow_unlabeled=False, random_state=123)
 
-km, bic, aic = kmeans_clustering(3, X).get_metrics()
+from sklearn.preprocessing import MinMaxScaler
+# scale data X
+scaler = MinMaxScaler()
+Xt = scaler.fit_transform(X)
+
+# reduce dimensionality by applying PCA
+pca = PCA(n_components=20, whiten=True, random_state=123)
+# fit & transform scaled feature array
+components = pca.fit_transform(Xt)
+
+# cummulative explained variance
+cum_pca_exp_var = np.cumsum(pca.explained_variance_ratio_)
+
+# taking only upto 90% cummulative variance
+pca_lt90 = cum_pca_exp_var[np.where(cum_pca_exp_var < 0.91)]
+
+# prepare names for PCA columns
+cols = ['PC'+str(num+1) for num in range(len(pca_lt90))]
+
+# save cummulative variance, pca components
+pca_df = pd.DataFrame(components[:, :len(cols)], columns=cols)
+
+Xpca = pca_df.values
+
+km, bic, aic = kmeans_clustering(3, Xpca).get_metrics()
 print(km, bic, aic)
