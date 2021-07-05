@@ -7,8 +7,10 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 class kmeans_clustering:
   
-  def __init__():
-    pass
+  def __init__(n_components, X):
+    km = self.get_kmeans(n_components, X)
+    bic, aic = self.get_bic_aic(n_components, X)
+    return km, bic, aic
   
   def get_kmeans(n_components, X):
     km = KMeans(
